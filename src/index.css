@@ -4,7 +4,7 @@
 
 body {
   background: linear-gradient(130deg,
-      rgb(0, 51, 0) 0%,
-      rgb(0, 102, 0) 50%,
-      rgb(0, 153, 0) 100%);
+      #c29631 0%,
+      #8b6e22 50%,
+      #4b3b0b 100%);
 }
