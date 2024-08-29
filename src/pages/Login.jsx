@@ -5,17 +5,24 @@ import Input from '../components/Input'
 import z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import ErrorInput from '../components/ErrorInput'
+import { login } from '../services/user'
+import Cookies from 'js-cookie'
 
 const loginSchema = z.object({
     email: z.string().min(1, "O email é obrigatório").email("Formato de email inválido").toLowerCase(),
-    password: z.string().min(1, "A senha é obrigatória").min(6, 'A senha precisa ter no mínimo 6 caracteres')
+    senha: z.string().min(1, "A senha é obrigatória").min(6, 'A senha precisa ter no mínimo 6 caracteres')
 })
 
 export default function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(loginSchema) })
 
-    function handleSubmitForm(data) {
-        console.log(data)
+    async function handleSubmitForm(data) {
+        try {
+            const resposta = await login(data)
+            Cookies.set("token", resposta.data.token, {expires: 1/96}) //15 minutos
+        } catch (error) {
+            console.log(error.message)
+        }
     }
 
     return (
@@ -32,11 +39,11 @@ export default function Login() {
                 {errors.email && <ErrorInput text={errors.email.message}/>}
                 <Input
                     type="password"
-                    placeholder="Password"
+                    placeholder="Senha"
                     register={register}
-                    name="password"
+                    name="senha"
                 />
-                {errors.password && <ErrorInput text={errors.password.message}/>}
+                {errors.senha && <ErrorInput text={errors.senha.message}/>}
 
                 <Button text="LOGIN" type="submit" />
             </form>
