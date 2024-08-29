@@ -4,6 +4,7 @@ import Button from '../components/Button'
 import Input from '../components/Input'
 import z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import ErrorInput from '../components/ErrorInput'
 
 const loginSchema = z.object({
     email: z.string().min(1, "O email é obrigatório").email("Formato de email inválido").toLowerCase(),
@@ -28,14 +29,14 @@ export default function Login() {
                     register={register}
                     name="email"
                 />
-                {errors.email && <span className='text-white'>{errors.email.message}</span>}
+                {errors.email && <ErrorInput text={errors.email.message}/>}
                 <Input
                     type="password"
                     placeholder="Password"
                     register={register}
                     name="password"
                 />
-                {errors.password && <span className='text-white'>{errors.password.message}</span>}
+                {errors.password && <ErrorInput text={errors.password.message}/>}
 
                 <Button text="LOGIN" type="submit" />
             </form>
