@@ -26,31 +26,33 @@ const personagemSchema = z.object({
 });
 
 export default function Personagem() {
-    const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(personagemSchema) })
-    const navigate = useNavigate()
+    const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(personagemSchema) });
+    const navigate = useNavigate();
+    const [mensagem, setMensagem] = useState('');
 
     async function handleSubmitForm(data) {
         try {
             const resposta = await criarPersonagem(data);
-            Cookies.set("token", resposta.data.token, { expires: 1 / 96 }); // 15 minutos
-            navigate("/");
+            Cookies.set("auth-token", resposta.data.token, { expires: 1 / 96 }); // 15 minutos
+            setMensagem('Personagem criado com sucesso!');
+            setTimeout(() => navigate("/"), 2000);
         } catch (error) {
             console.error("Erro ao criar personagem:", error.message);
             if (error.response && error.response.status === 401) {
                 console.error("Erro 401: Não autorizado - verifique o token.");
             }
+            setMensagem(`Erro ao criar personagem: ${error.message}`);
         }
     }
 
     function validateToken() {
-        const token = Cookies.get("token")
-        if (!token) navigate("/login")
+        const token = Cookies.get("auth-token");
+        if (!token) navigate("/login");
     }
 
     useEffect(() => {
-        validateToken()
-    }, [])
-
+        validateToken();
+    }, []);
 
     return (
         <div className="flex flex-col items-center justify-around bg-black relative rounded p-8 w-[35rem]">
@@ -73,7 +75,6 @@ export default function Personagem() {
                     name="altura"
                 />
                 {errors.altura && <ErrorInput text={errors.altura.message} />}
-
                 <Input
                     type="massa"
                     placeholder="Massa"
@@ -109,10 +110,9 @@ export default function Personagem() {
                     name="genero"
                 />
                 {errors.genero && <ErrorInput text={errors.genero.message} />}
-
                 <Button text="Criar" type="submit" />
             </form>
+            {mensagem && <div className="mt-4 text-lg text-white">{mensagem}</div>}
         </div>
-    )
-
+    );
 }

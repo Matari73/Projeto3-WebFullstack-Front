@@ -10,7 +10,7 @@ export default function Home() {
     const navigate = useNavigate()
 
     function validateToken() {
-        const token = Cookies.get("token")
+        const token = Cookies.get("auth-token")
         if (!token) navigate("/login")
     }
 

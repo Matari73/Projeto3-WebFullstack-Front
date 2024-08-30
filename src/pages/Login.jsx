@@ -21,7 +21,7 @@ export default function Login() {
     async function handleSubmitForm(data) {
         try {
             const resposta = await login(data)
-            Cookies.set("token", resposta.data.token, {expires: 1/96}) //15 minutos
+            Cookies.set("auth-token", resposta.data.token, {expires: 1/96}) //15 minutos
             navigate("/")
         } catch (error) {
             console.log(error.message)
