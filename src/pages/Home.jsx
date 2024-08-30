@@ -3,6 +3,7 @@ import logo from '../assets/logoSW.png'
 import Button from '../components/Button'
 import Cookies from 'js-cookie'
 import { useEffect } from 'react'
+import { Link } from 'react-router-dom';
 
 
 export default function Home() {
@@ -23,7 +24,8 @@ export default function Home() {
             <header className="flex items-center justify-between w-full pb-4">
                 <img src={logo} alt="Logo Star Wars" className='w-32' />
                 <div className='flex items-center gap-4 text-white text-2xl'>
-                    <h1>Bem-vindo à Home!</h1>
+                    <input type="text" />
+                    <Button type="submit" text="Buscar" icon="search" />
                 </div>
             </header>
 
@@ -31,8 +33,10 @@ export default function Home() {
 
             </section>
 
-            <footer className='w-full pt-10 flex gap-2 text-white test-lg font-bold'>
-                <Button type="button" text="Novo personagem" icon="plus" />
+            <footer className='w-full pt-10 flex justify-center text-white text-lg font-bold'>
+                <Link to="/personagem">
+                    <Button type="button" text="Novo personagem" icon="plus" />
+                </Link>
             </footer>
         </main>
     )

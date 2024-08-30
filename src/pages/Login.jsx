@@ -48,7 +48,7 @@ export default function Login() {
                 />
                 {errors.senha && <ErrorInput text={errors.senha.message}/>}
 
-                <Button text="LOGIN" type="submit" />
+                <Button text="LOGIN" type="submit"/>
             </form>
         </div>
     )
