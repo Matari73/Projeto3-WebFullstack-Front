@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import ErrorInput from '../components/ErrorInput'
 import { login } from '../services/user'
 import Cookies from 'js-cookie'
+import { useNavigate } from 'react-router-dom'
 
 const loginSchema = z.object({
     email: z.string().min(1, "O email é obrigatório").email("Formato de email inválido").toLowerCase(),
@@ -15,11 +16,13 @@ const loginSchema = z.object({
 
 export default function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(loginSchema) })
+    const navigate = useNavigate()
 
     async function handleSubmitForm(data) {
         try {
             const resposta = await login(data)
             Cookies.set("token", resposta.data.token, {expires: 1/96}) //15 minutos
+            navigate("/")
         } catch (error) {
             console.log(error.message)
         }
