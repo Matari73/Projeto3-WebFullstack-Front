@@ -1,10 +1,16 @@
-export default function Button({ text, type }) {
+import { BiPlusCircle } from "react-icons/bi"
+
+export default function Button({ text, type, icon }) {
+    let IconComponent
+
+    if (!icon) icon = "";
+    if (icon === "plus") IconComponent = BiPlusCircle
     return (
         <button
             type={type}
-            className="px-3 py-1 rounded w-1/2 mx-auto block font-bold text-white text-xl bg-gradient-to-r from-[#c29631] to-[#8b6e22]"
+            className="px-4 py-2 rounded w-full font-bold text-white text-2xl bg-gradient-to-r from-[#c29631] to-[#8b6e22] flex items-center justify-center gap-2"
         >
-            {text}
+            {IconComponent && <IconComponent />} {text}
         </button>
     )
 }
