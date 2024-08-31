@@ -8,10 +8,9 @@ import ErrorInput from '../components/ErrorInput'
 import { criarPersonagem } from '../services/personagem'
 import Cookies from 'js-cookie'
 import { useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { BiArrowBack } from "react-icons/bi"
 import { Link } from 'react-router-dom';
-
 
 const personagemSchema = z.object({
     nome: z.string().min(1, "O nome é obrigatório").trim(),
@@ -33,7 +32,12 @@ export default function Personagem() {
     async function handleSubmitForm(data) {
         try {
             const resposta = await criarPersonagem(data);
-            Cookies.set("auth-token", resposta.data.token, { expires: 1 / 96 }); // 15 minutos
+            if (resposta.data.token) {
+                Cookies.set("auth-token", resposta.data.token, { expires: 1 / 96, sameSite: 'None', secure: true });
+            } else {
+                console.error("Token não encontrado na resposta.");
+            }
+
             setMensagem('Personagem criado com sucesso!');
             setTimeout(() => navigate("/"), 2000);
         } catch (error) {
