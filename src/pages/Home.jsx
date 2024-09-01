@@ -11,7 +11,7 @@ import { buscarPersonagem } from '../services/personagem';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-export const personagemSchemaHome = z.object({
+const personagemSchemaHome = z.object({
     nome: z.string().min(1, "O nome é obrigatório").trim(),
 });
 
@@ -26,7 +26,13 @@ export default function Home() {
         try {
             const resposta = await buscarPersonagem(data.nome);
             setPersonagens(resposta.data);
-            console.log("Resposta do backend:", resposta);
+
+            if (resposta.data.length === 0) {
+                setMensagem("Nenhum personagem encontrado.");
+            } else {
+                setMensagem('');
+            }
+
             if (resposta.data.token) {
                 Cookies.set("auth-token", resposta.data.token, { expires: 1 / 96, sameSite: 'None', secure: true });
             } else {
@@ -34,13 +40,16 @@ export default function Home() {
             }
         } catch (error) {
             console.error("Erro ao listar personagens:", error.message);
+
             if (error.response && error.response.status === 401) {
-                console.error("Erro 401: Não autorizado - verifique o token.");
+                setMensagem("Erro 401: Não autorizado - verifique o token.");
+            } else if (error.response && error.response.status === 404) {
+                setMensagem("Nenhum personagem encontrado.");
+            } else {
+                setMensagem(`Erro ao listar personagens: ${error.message}`);
             }
-            setMensagem(`Erro ao listar personagens: ${error.message}`);
         }
     }
-    
 
 
     function validateToken() {
@@ -57,19 +66,21 @@ export default function Home() {
             <header className="flex items-center justify-between w-full pb-4">
                 <img src={logo} alt="Logo Star Wars" className='w-32' />
                 <form onSubmit={handleSubmit(handleSubmitForm)} className='flex items-center gap-4 text-black text-2xl'>
-                    <Input
-                        type="text"
-                        placeholder="Nome"
-                        register={register}
-                        name="nome"
-                    />
-                    {errors.nome && <ErrorInput text={errors.nome.message} />}
+                    <div className='flex flex-col'>
+                        <Input
+                            type="text"
+                            placeholder="Nome"
+                            register={register}
+                            name="nome"
+                        />
+                        {errors.nome && <ErrorInput text={errors.nome.message} />}
+                    </div>
                     <Button type="submit" text="Buscar" icon="search" />
                 </form>
             </header>
 
             <section className='bg-zinc-300 p-4 w-full h-[400px] rounded flex flex-col gap-4 overflow-y-auto'>
-                {personagens.length > 0 ? (
+                {personagens.length > 0 && (
                     personagens.map((personagem) => (
                         <div key={personagem._id} className='p-4 bg-white rounded'>
                             <h3 className='text-xl font-bold'>{personagem.nome}</h3>
@@ -81,8 +92,6 @@ export default function Home() {
                             <p>Gênero: {personagem.genero}</p>
                         </div>
                     ))
-                ) : (
-                    <p className='text-center text-lg text-gray-700'>Nenhum personagem encontrado.</p>
                 )}
             </section>
 

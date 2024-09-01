@@ -14,13 +14,24 @@ import { Link } from 'react-router-dom';
 
 const personagemSchema = z.object({
     nome: z.string().min(1, "O nome é obrigatório").trim(),
-    altura: z.preprocess((val) => parseFloat(val), z.number().min(0, "A altura deve ser um valor positivo").max(300, "Altura não pode ser maior que 300 cm")),
-    massa: z.preprocess((val) => parseFloat(val), z.number().min(0, "A massa deve ser um valor positivo")),
+    altura: z.preprocess((val) => {
+        if (val === "" || val === null || val === undefined) return undefined;
+        return parseFloat(val);
+    }, z.number({ required_error: "A altura é obrigatória" })
+        .min(0, "A altura deve ser um valor positivo")
+        .max(300, "Altura não pode ser maior que 300 cm")),
+    massa: z.preprocess((val) => {
+        if (val === "" || val === null || val === undefined) return undefined;
+        return parseFloat(val);
+    }, z.number({ required_error: "A massa é obrigatória" })
+        .min(0, "A massa deve ser um valor positivo")),
     corCabelo: z.string().min(1, "A cor do cabelo é obrigatória"),
     corPele: z.string().min(1, "A cor da pele é obrigatória"),
     corOlhos: z.string().min(1, "A cor dos olhos é obrigatória"),
-    genero: z.enum(['masculino', 'feminino', 'outro'], {
-        errorMap: () => ({ message: "O gênero é obrigatório" }),
+    genero: z.string().min(1, "O gênero é obrigatório").refine((val) => {
+        return ['masculino', 'feminino', 'outro'].includes(val);
+    }, {
+        message: "Por favor, selecione um gênero válido (masculino, feminino, outro)."
     })
 });
 
@@ -32,6 +43,7 @@ export default function Personagem() {
     async function handleSubmitForm(data) {
         try {
             const resposta = await criarPersonagem(data);
+
             if (resposta.data.token) {
                 Cookies.set("auth-token", resposta.data.token, { expires: 1 / 96, sameSite: 'None', secure: true });
             } else {
@@ -42,10 +54,12 @@ export default function Personagem() {
             setTimeout(() => navigate("/"), 2000);
         } catch (error) {
             console.error("Erro ao criar personagem:", error.message);
+
             if (error.response && error.response.status === 401) {
-                console.error("Erro 401: Não autorizado - verifique o token.");
+                setMensagem("Erro 401: Não autorizado - verifique o token.");
+            } else {
+                setMensagem(`Erro ao criar personagem: ${error.message}`);
             }
-            setMensagem(`Erro ao criar personagem: ${error.message}`);
         }
     }
 
