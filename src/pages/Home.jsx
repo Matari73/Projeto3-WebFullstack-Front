@@ -15,12 +15,15 @@ const personagemSchemaHome = z.object({
     nome: z.string().min(1, "O nome é obrigatório").trim(),
 });
 
-
 export default function Home() {
-    const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(personagemSchemaHome) });
+    const { register, handleSubmit, formState: { errors }, watch } = useForm({
+        resolver: zodResolver(personagemSchemaHome)
+    });
     const navigate = useNavigate();
     const [mensagem, setMensagem] = useState('');
     const [personagens, setPersonagens] = useState([]);
+
+    const nome = watch('nome', '');
 
     async function handleSubmitForm(data) {
         try {
@@ -51,7 +54,6 @@ export default function Home() {
         }
     }
 
-
     function validateToken() {
         const token = Cookies.get("auth-token");
         if (!token) navigate("/login");
@@ -60,6 +62,13 @@ export default function Home() {
     useEffect(() => {
         validateToken();
     }, [navigate]);
+
+    useEffect(() => {
+        if (nome.trim() === '') {
+            setPersonagens([]);
+            setMensagem('');
+        }
+    }, [nome]);
 
     return (
         <main className="flex flex-col items-center justify-center bg-black rounded p-8 w-[60rem] h-[35rem] text-2xl">
